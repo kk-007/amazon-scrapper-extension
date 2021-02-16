@@ -3,6 +3,11 @@ const _data = [
         key: "title",
         xpath: `\/\/*[@id=\"productTitle\"]`,
     },
+    {
+        key: "image",
+        xpath: `\/\/*[@id="landingImage"]`,
+        image: true,
+    },
 ];
 const getDocumentFromString = (domString) => {
     const domparser = new DOMParser();
@@ -11,22 +16,28 @@ const getDocumentFromString = (domString) => {
 const getData = (document) => {
     let data = {};
     for (let item of _data) {
-        data[item.key] = document
-            .evaluate(
-                item.xpath,
-                document,
-                null,
-                XPathResult.FIRST_ORDERED_NODE_TYPE,
-                null
-            )
-            .singleNodeValue.innerHTML.toString()
-            .trim();
+        let elem = document.evaluate(
+            item.xpath,
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+        ).singleNodeValue;
+        data[item.key] = elem ? elem.innerHTML.toString().trim() : "";
+        if (item.image) {
+            data[item.key] = elem.src.toString().trim();
+        }
     }
     return data;
 };
 function displayData(data) {
-    document.querySelector("#title").innerHTML =
-        "</p><p><b>Product Name:</b> " + data[_data[0].key] + "</p>";
+    document.querySelector("#data").innerHTML =
+        "<p><b>Product Name:</b> " +
+        data[_data[0].key] +
+        "</p></br>" +
+        "<p><b>Image:</b> <img class='product-image' src='" +
+        data[_data[1].key] +
+        "'/></p></br>";
 }
 const displayProductDetail = (dom) => {
     let doc = getDocumentFromString(dom);
